@@ -1,5 +1,3 @@
-use std::cmp;
-use std::cmp::{Ord,Ordering};
 use std::iter;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -143,7 +141,6 @@ pub fn solve_part2(input: &[SleepRecord]) -> usize {
 
                 let entry = guards.entry(id.unwrap()).or_insert((0, iter::repeat(0).take(60).collect()));
                 for m in start.unwrap()..end {
-                    // entry.0 += 1;
                     entry.1[m] += 1;
                 }
 
