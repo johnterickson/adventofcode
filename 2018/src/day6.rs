@@ -1,4 +1,3 @@
-use std::cmp;
 use std::fmt;
 use std::collections::{HashSet,HashMap};
 
@@ -168,7 +167,7 @@ pub fn solve_part1(coords: &Vec<Point>) -> usize {
 
 
     print(grid, width, height);
-    let (largest_point, largest_area) = counts.iter().max_by(|x,y| x.1.cmp(y.1)).unwrap();
+    let (_largest_point, largest_area) = counts.iter().max_by(|x,y| x.1.cmp(y.1)).unwrap();
     *largest_area
 }
 

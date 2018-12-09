@@ -118,7 +118,7 @@ pub fn solve_part1(input: &[SleepRecord]) -> usize {
     }
 
     let (guard_id, sleep_values) = guards.iter().max_by_key(|e| (e.1).0).unwrap();
-    let (index, count) = sleep_values.1.iter().enumerate().max_by_key(|e| e.1).unwrap();
+    let (index, _count) = sleep_values.1.iter().enumerate().max_by_key(|e| e.1).unwrap();
     guard_id * index
 }
 
@@ -154,6 +154,6 @@ pub fn solve_part2(input: &[SleepRecord]) -> usize {
     }
 
     let (guard_id, sleep_values) = guards.iter().max_by_key(|e| (e.1).0).unwrap();
-    let (index, count) = sleep_values.1.iter().enumerate().max_by_key(|e| e.1).unwrap();
+    let (index, _count) = sleep_values.1.iter().enumerate().max_by_key(|e| e.1).unwrap();
     guard_id * index
 }
