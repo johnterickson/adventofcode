@@ -47,14 +47,15 @@ pub fn solve_part1(reqs: &Vec<Requirement>) -> String {
     let mut steps : HashMap<StepName, Step> = HashMap::new();
 
     for req in reqs {
+        steps.entry(req.dep).or_insert(Step { done: false, deps: HashSet::new()});
         let step = steps.entry(req.name).or_insert(Step { done: false, deps: HashSet::new()});
         step.deps.insert(req.dep);
     }
 
-    for c in ('A' as u8) ..= ('Z' as u8) {
-        let s = StepName(c as char);
-        steps.entry(s).or_insert(Step { done: false, deps: HashSet::new()});
-    }
+    // for c in ('A' as u8) ..= ('Z' as u8) {
+    //     let s = StepName(c as char);
+    //     steps.entry(s).or_insert(Step { done: false, deps: HashSet::new()});
+    // }
 
     let mut order = String::new();
 
@@ -71,17 +72,12 @@ pub fn solve_part1(reqs: &Vec<Requirement>) -> String {
             }
         }
 
-        for r in &ready {
-            steps.get_mut(r).unwrap().done = true;
-        }
-
         let mut ready_sorted : Vec<char> = ready.iter().map(|s| s.0).collect();
         
         ready_sorted.sort();
-        for c in ready_sorted {
-            order.push(c);
-        }
 
+        steps.get_mut(&StepName(ready_sorted[0])).unwrap().done = true;
+        order.push(ready_sorted[0]);
         println!("{}", &order);
     }
 
