@@ -1,0 +1,12 @@
+[package]
+name = "adventofcode"
+version = "0.1.0"
+authors = ["John Erickson <john.t.erickson@gmail.com>"]
+
+[lib]
+bench = false
+
+[dependencies]
+rust-crypto = "*"
+aoc-runner = "*"
+aoc-runner-derive = "*"
