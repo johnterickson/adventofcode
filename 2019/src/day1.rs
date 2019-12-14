@@ -1,87 +1,47 @@
-#[aoc(day1, part1, Bytes)]
-pub fn part1_bytes(input: &[u8]) -> i32 {
-    input.iter().fold(0, |sum, c| match c {
-        b'(' => sum + 1,
-        b')' => sum - 1,
-        _ => unreachable!(),
-    })
+use aoc_runner_derive::{aoc, aoc_generator};
+use std::num::ParseIntError;
+
+#[aoc_generator(day1)]
+fn parse_input_day1(input: &str) -> Result<Vec<u32>, ParseIntError> {
+    input.lines().map(|l| l.parse()).collect()
 }
 
-#[aoc(day1, part1, Chars)]
-pub fn part1_chars(input: &str) -> i32 {
-    input.chars().fold(0, |sum, c| match c {
-        '(' => sum + 1,
-        ')' => sum - 1,
-        _ => unreachable!(),
-    })
+fn get_fuel(mass: &u32) -> u32 {
+    if *mass < 6 { 
+        0
+    } else {
+        let mut fuel = (mass / 3) - 2;
+        fuel += get_fuel(&fuel);
+        fuel
+    }
+}
+
+#[aoc(day1, part1)]
+fn part1(masses: &[u32]) -> u32 {
+    masses.iter().map(|mass| (mass / 3) - 2).sum()
 }
 
 #[aoc(day1, part2)]
-pub fn part2(input: &str) -> usize {
-    let mut sum: u32 = 0;
-
-    for (i, c) in input.as_bytes().iter().enumerate() {
-        match c {
-            b'(' => sum += 1,
-            b')' => if let Some(s) = sum.checked_sub(1) {
-                sum = s;
-            } else {
-                return i + 1;
-            },
-            _ => unreachable!(),
-        }
-    }
-
-    unreachable!()
+fn part2(masses: &[u32]) -> u32 {
+    masses.iter().map(get_fuel).sum()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{part1_chars as part1, part2};
+    use super::*;
 
-    // (()) and ()() both result in floor 0.
     #[test]
-    fn sample1() {
-        assert_eq!(part1("(())"), 0);
-        assert_eq!(part1("()()"), 0);
+    fn part1_example() {
+        assert_eq!(part1(&[12]), 2);
+        assert_eq!(part1(&[14]), 2);
+        assert_eq!(part1(&[1969]), 654);
+        assert_eq!(part1(&[100756]), 33583);
     }
 
-    // ((( and (()(()( both result in floor 3.
     #[test]
-    fn sample2() {
-        assert_eq!(part1("((("), 3);
-        assert_eq!(part1("(()(()("), 3);
-    }
-
-    // ))((((( also results in floor 3.
-    #[test]
-    fn sample3() {
-        assert_eq!(part1("))((((("), 3);
-    }
-
-    // ()) and ))( both result in floor -1 (the first basement level).
-    #[test]
-    fn sample4() {
-        assert_eq!(part1("())"), -1);
-        assert_eq!(part1("))("), -1);
-    }
-
-    // ))) and )())()) both result in floor -3.
-    #[test]
-    fn sample5() {
-        assert_eq!(part1(")))"), -3);
-        assert_eq!(part1(")())())"), -3);
-    }
-
-    // ) causes him to enter the basement at character position 1.
-    #[test]
-    fn sample6() {
-        assert_eq!(part2(")"), 1);
-    }
-
-    // ()()) causes him to enter the basement at character position 5.
-    #[test]
-    fn sample7() {
-        assert_eq!(part2("()())"), 5);
+    fn part2_example() {
+        assert_eq!(part2(&[14]), 2);
+        assert_eq!(part2(&[1969]), 966);
+        assert_eq!(part2(&[100756]), 50346);
     }
 }
