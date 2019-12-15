@@ -38,8 +38,20 @@ fn part1(input: &[usize]) -> usize {
 }
 
 #[aoc(day2, part2)]
-fn part2(masses: &[usize]) -> usize {
-    unimplemented!();
+fn part2(input: &[usize]) -> usize {
+    for noun in 0..=99 {
+        for verb in 0..=99 {
+            let mut memory : Vec<usize> = input.iter().cloned().collect();
+            memory[1] = noun;
+            memory[2] = verb;
+            run(memory.as_mut_slice());
+            if memory[0] == 19690720 {
+                return 100*noun + verb;
+            }
+        }
+    }
+
+    unreachable!();
 }
 
 #[cfg(test)]
