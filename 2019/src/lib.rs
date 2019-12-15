@@ -5,4 +5,5 @@ mod day2;
 mod day3;
 mod day4;
 
-aoc_lib! { year = 2019, extra_alternatives = ["fnv"] }
+aoc_lib! { year = 2019, extra_alternatives = ["fnv"] 
+}
