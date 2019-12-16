@@ -260,14 +260,6 @@ fn part2(input: &[isize]) -> isize {
 mod tests {
     use super::*;
 
-    fn test(start: &[isize], inputs: &[isize], end: Option<&[isize]>, expected: &[isize]) {
-        let mut mem : Vec<isize> = start.to_vec();
-        let outputs = run(mem.as_mut_slice(), inputs);
-        if let Some(end) = end {
-            assert_eq!(end, mem.as_slice());
-        }
-        assert_eq!(expected, outputs.as_slice());
-    }
     #[test]
     fn part1_example() {
         assert_eq!(43210, part1(&[3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]));
