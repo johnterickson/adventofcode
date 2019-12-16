@@ -1,8 +1,6 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::num::ParseIntError;
 
-use std::collections::BTreeMap;
-
 #[aoc_generator(day4)]
 fn parse_input(input: &str) -> Result<(usize,usize), ParseIntError> {
     let mut nums = input.split("-");

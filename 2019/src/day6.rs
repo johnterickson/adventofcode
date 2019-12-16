@@ -1,7 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 use std::num::ParseIntError;
 
-use std::collections::{BTreeSet, BTreeMap, VecDeque};
+use std::collections::{BTreeSet, BTreeMap};
 
 #[aoc_generator(day6)]
 fn parse_input(input: &str) -> Result<Vec<(String,String)>, ParseIntError> {
@@ -77,7 +77,7 @@ fn part2(pairs: &[(String,String)]) -> u32 {
         depth += 1;
     }
     
-    unreachable!();
+    // unreachable!();
 }
 
 #[cfg(test)]
