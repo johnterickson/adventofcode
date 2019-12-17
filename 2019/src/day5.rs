@@ -93,7 +93,7 @@ fn run(memory: &mut [isize], inputs: &[isize]) -> Vec<isize> {
 
 #[aoc(day5, part1)]
 fn part1(input: &[isize]) -> isize {
-    let mut memory : Vec<isize> = input.iter().cloned().collect();
+    let mut memory : Vec<isize> = input.to_vec();
     let outputs = run(memory.as_mut_slice(), &[1]);
     for i in 0..(outputs.len()-2) {
         assert_eq!(0, outputs[i]);
@@ -103,7 +103,7 @@ fn part1(input: &[isize]) -> isize {
 
 #[aoc(day5, part2)]
 fn part2(input: &[isize]) -> isize {
-    let mut memory : Vec<isize> = input.iter().cloned().collect();
+    let mut memory : Vec<isize> = input.to_vec();
     let outputs = run(memory.as_mut_slice(), &[5]);
     assert_eq!(1, outputs.len());
     outputs[0]

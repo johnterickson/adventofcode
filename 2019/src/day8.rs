@@ -13,7 +13,7 @@ fn part1(input: &[usize]) -> usize {
     let layers = input.len() / (width * height);
     assert_eq!(input.len(), width*height*layers);
     let layers = input.chunks(width*height);
-    let (fewest_zeroes_layer, zeroes) = layers
+    let (fewest_zeroes_layer, _zeroes) = layers
         .map(|layer| {
             assert_eq!(width*height, layer.len());
             let zeroes = layer.iter().filter(|pixel| **pixel == 0).count();
@@ -82,6 +82,8 @@ fn part2(input: &[usize]) -> usize {
         }
         println!();
     }
+
+    println!();
 
     0
 }

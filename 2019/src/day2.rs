@@ -30,7 +30,7 @@ fn run(memory: &mut [usize]) {
 
 #[aoc(day2, part1)]
 fn part1(input: &[usize]) -> usize {
-    let mut memory : Vec<usize> = input.iter().cloned().collect();
+    let mut memory : Vec<usize> = input.to_vec();
     memory[1] = 12;
     memory[2] = 2;
     run(memory.as_mut_slice());
@@ -41,7 +41,7 @@ fn part1(input: &[usize]) -> usize {
 fn part2(input: &[usize]) -> usize {
     for noun in 0..=99 {
         for verb in 0..=99 {
-            let mut memory : Vec<usize> = input.iter().cloned().collect();
+            let mut memory : Vec<usize> = input.to_vec();
             memory[1] = noun;
             memory[2] = verb;
             run(memory.as_mut_slice());

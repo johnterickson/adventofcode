@@ -102,7 +102,7 @@ fn part1(input: &[isize]) -> isize {
         let mut last_output = 0;
 
         for amp in 0..=4 {
-            let mut memory : Vec<isize> = input.iter().cloned().collect();
+            let mut memory : Vec<isize> = input.to_vec();
             let outputs = run(memory.as_mut_slice(), &[permutation[amp], last_output]);
             last_output = outputs[0];
         }
@@ -237,7 +237,7 @@ fn part2(input: &[isize]) -> isize {
                 let send_next = send_next.unwrap();
 
                 handles.push(s.spawn(|_| {
-                    let mut memory : Vec<isize> = input.iter().cloned().collect();
+                    let mut memory : Vec<isize> = input.to_vec();
                     let outputs = run2(memory.as_mut_slice(), recv_me, send_next);
                     *outputs.last().unwrap()
                 }));
