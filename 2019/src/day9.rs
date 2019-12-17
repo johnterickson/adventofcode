@@ -3,7 +3,7 @@ use std::num::ParseIntError;
 
 #[aoc_generator(day9)]
 fn parse_input(input: &str) -> Result<Vec<isize>, ParseIntError> {
-    input.split(",").map(|l| l.parse()).collect()
+    input.split(',').map(|l| l.parse()).collect()
 }
 
 use std::collections::VecDeque;

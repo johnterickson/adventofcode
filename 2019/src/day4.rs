@@ -3,7 +3,7 @@ use std::num::ParseIntError;
 
 #[aoc_generator(day4)]
 fn parse_input(input: &str) -> Result<(usize,usize), ParseIntError> {
-    let mut nums = input.split("-");
+    let mut nums = input.split('-');
     let lo = nums.next().unwrap().parse()?;
     let hi = nums.next().unwrap().parse()?;
     Ok((lo, hi))
@@ -24,17 +24,17 @@ fn check_number(n: usize) -> bool {
     let mut last_digit = digits[0];
     let mut double_digit = false;
     for d in digits.iter().skip(1) {
-        if d < &last_digit {
+        if *d < last_digit {
             return false;
         }
-        if &last_digit == d {
+        if last_digit == *d {
             double_digit = true;
         }
 
         last_digit = *d;
     }
 
-    return double_digit;
+    double_digit
 }
 
 #[aoc(day4, part1)]
@@ -59,10 +59,10 @@ fn check_number2(n: usize) -> bool {
     let mut run_length = 1;
     let mut double_digit = false;
     for d in digits.iter().skip(1) {
-        if d < &last_digit {
+        if *d < last_digit {
             return false;
         }
-        if &last_digit != d {
+        if last_digit != *d {
             if run_length == 2 {
                 double_digit = true;
             }
@@ -77,7 +77,7 @@ fn check_number2(n: usize) -> bool {
         double_digit = true;
     }
 
-    return double_digit;
+    double_digit
 }
 
 #[aoc(day4, part2)]

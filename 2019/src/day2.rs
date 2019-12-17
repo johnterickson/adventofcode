@@ -3,7 +3,7 @@ use std::num::ParseIntError;
 
 #[aoc_generator(day2)]
 fn parse_input(input: &str) -> Result<Vec<usize>, ParseIntError> {
-    input.split(",").map(|l| l.parse()).collect()
+    input.split(',').map(|l| l.parse()).collect()
 }
 
 fn run(memory: &mut [usize]) {
@@ -45,7 +45,7 @@ fn part2(input: &[usize]) -> usize {
             memory[1] = noun;
             memory[2] = verb;
             run(memory.as_mut_slice());
-            if memory[0] == 19690720 {
+            if memory[0] == 19_690_720 {
                 return 100*noun + verb;
             }
         }

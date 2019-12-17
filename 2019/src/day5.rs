@@ -3,7 +3,7 @@ use std::num::ParseIntError;
 
 #[aoc_generator(day5)]
 fn parse_input(input: &str) -> Result<Vec<isize>, ParseIntError> {
-    input.split(",").map(|l| l.parse()).collect()
+    input.split(',').map(|l| l.parse()).collect()
 }
 
 fn run(memory: &mut [isize], inputs: &[isize]) -> Vec<isize> {

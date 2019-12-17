@@ -54,7 +54,7 @@ impl<T: Clone> std::ops::IndexMut<usize> for SparseArray<T> {
 fn parse_input(input: &str) -> Result<Vec<Wire>, ParseIntError> {
     Ok(
         input.lines().map( |l| {
-            let moves = l.split(",").map(|m| {
+            let moves = l.split(',').map(|m| {
                 let (dir,steps) = m.split_at(1);
                 let dir = match dir.chars().next().unwrap() {
                     'L' => Direction::L,
@@ -127,7 +127,7 @@ fn run(input: &[Wire], len: usize) -> usize {
 
 #[aoc(day3, part1)]
 fn part1(input: &[Wire]) -> usize {
-    run(input, 1000000)
+    run(input, 1_000_000)
 }
 
 fn run2(input: &[Wire], len: usize) -> usize {
@@ -148,7 +148,7 @@ fn run2(input: &[Wire], len: usize) -> usize {
 
                 let cell = grid
                     .entry((x,y))
-                    .or_insert_with(|| BTreeMap::new());
+                    .or_insert_with(BTreeMap::new);
 
                 cell.entry(wire_index).or_insert(wire_steps);
             }
@@ -170,7 +170,7 @@ fn run2(input: &[Wire], len: usize) -> usize {
 
 #[aoc(day3, part2)]
 fn part2(input: &[Wire]) -> usize {
-    run2(input, 1000000)
+    run2(input, 1_000_000)
 }
 
 #[cfg(test)]

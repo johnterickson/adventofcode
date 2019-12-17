@@ -6,12 +6,12 @@ fn parse_input(input: &str) -> Result<Vec<u32>, ParseIntError> {
     input.lines().map(|l| l.parse()).collect()
 }
 
-fn get_fuel(mass: &u32) -> u32 {
-    if *mass < 6 { 
+fn get_fuel(mass: u32) -> u32 {
+    if mass < 6 { 
         0
     } else {
         let mut fuel = (mass / 3) - 2;
-        fuel += get_fuel(&fuel);
+        fuel += get_fuel(fuel);
         fuel
     }
 }
@@ -23,7 +23,7 @@ fn part1(masses: &[u32]) -> u32 {
 
 #[aoc(day1, part2)]
 fn part2(masses: &[u32]) -> u32 {
-    masses.iter().map(get_fuel).sum()
+    masses.iter().map(|m| get_fuel(*m)).sum()
 }
 
 #[cfg(test)]

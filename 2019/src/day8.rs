@@ -35,7 +35,7 @@ enum Color {
 }
 
 impl Color {
-    fn parse(c: &usize) -> Color {
+    fn parse(c: usize) -> Color {
         match c {
             0 => Color::Black,
             1 => Color::White,
@@ -72,7 +72,7 @@ fn part2(input: &[usize]) -> usize {
     let mut picture = vec![Color::Transparent; width*height];
     for layer in layers {
         for (i, pixel) in layer.iter().enumerate() {
-            picture[i].merge(Color::parse(pixel));
+            picture[i].merge(Color::parse(*pixel));
         }
     }
 
@@ -90,8 +90,6 @@ fn part2(input: &[usize]) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn part1_example() {
     }
