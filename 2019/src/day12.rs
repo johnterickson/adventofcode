@@ -91,7 +91,33 @@ fn part1(input: &[Vec3]) -> usize {
 
 #[aoc(day12, part2)]
 fn part2(input: &[Vec3]) -> usize {
-    unimplemented!();
+    let mut g = Gravity::new(input);
+    let mut steps = 0;
+    let mut periods = [None; 3];
+    let original = (g.positions.to_vec(), g.velocities.to_vec());
+    println!("{:?}", &original);
+
+    while periods.iter().any(|p| p.is_none()) {
+        g.step();
+        steps += 1;
+
+        for axis in 0..3 {
+            if !periods[axis].is_none() {
+                continue;
+            }
+
+            if g.positions.iter().zip(original.0.iter()).all(|(now, orig)| now[axis] == orig[axis]) &&
+               g.velocities.iter().zip(original.1.iter()).all(|(now, orig)| now[axis] == orig[axis])
+            {
+                println!("{:?}", (&g.positions, &g.velocities));
+                println!("axis {} repeats every {} steps", axis, steps);
+                periods[axis] = Some(steps);
+            }
+        }
+
+    }
+
+    periods.iter().fold(1, |acc, p| num_integer::lcm(acc,p.unwrap()))
 }
 
 #[cfg(test)]
@@ -134,6 +160,20 @@ mod tests {
 
     #[test]
     fn part2_example() {
-       
+        let input = parse_input(
+            "<x=-1, y=0, z=2>
+            <x=2, y=-10, z=-7>
+            <x=4, y=-8, z=8>
+            <x=3, y=5, z=-1>").unwrap();
+        assert_eq!(2_772, part2(&input));
+
+        let input = parse_input(
+            "<x=-8, y=-10, z=0>
+            <x=5, y=5, z=10>
+            <x=2, y=-7, z=3>
+            <x=9, y=-8, z=-3>").unwrap();
+        
+        assert_eq!(4_686_774_924, part2(&input));
+
     }
 }
