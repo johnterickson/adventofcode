@@ -63,13 +63,13 @@ fn map_pop<K: Clone + Ord,V>(map: &mut BTreeMap<K,V>) -> Option<(K,V)> {
     }
 }
 
-fn find_ore_needed(formulas: &Vec<Formula>) -> usize {
+fn find_ore_needed(formulas: &Vec<Formula>) -> (usize, BTreeMap<String, usize>) {
     let mut recipes: BTreeMap<&str, &Formula> = BTreeMap::new();
     for f in formulas {
         recipes.insert(f.output.chemical.as_str(), &f);
     }
 
-    dbg!(&recipes);
+    // dbg!(&recipes);
 
     let mut ore_needed = 0;
     let mut extras: BTreeMap<String, usize> = BTreeMap::new();
@@ -101,17 +101,69 @@ fn find_ore_needed(formulas: &Vec<Formula>) -> usize {
         // println!("extras: {:?}", &extras);
     }
 
+    (ore_needed, extras)
+}
+
+fn total_needed(formulas: &Vec<Formula>) -> f64 {
+    let mut recipes: BTreeMap<&str, &Formula> = BTreeMap::new();
+    for f in formulas {
+        recipes.insert(f.output.chemical.as_str(), &f);
+    }
+
+
+    let mut ore_needed = 0.0;
+    let mut to_walk: BTreeMap<String, f64> = BTreeMap::new();
+    to_walk.insert(FUEL.to_owned(), 1.0);
+    while let Some((chemical, count)) = map_pop(&mut to_walk) {
+        if &chemical == ORE {
+            ore_needed += count;
+            continue;
+        }
+
+        let formula = recipes[chemical.as_str()];
+        let formula_count = (count as f64) / (formula.output.count as f64);
+        // let extra = formula_count * formula.output.count - count;
+        // println!("Using formula {:?} {}x to create {} of {} with {} extra.", 
+        //     &formula, &formula_count, &count, &chemical, &extra);
+        // *extras.entry(chemical.clone()).or_insert(0) += extra;
+
+        for ingredient in &formula.inputs {
+            let mut count_needed = (ingredient.count as f64) * formula_count;
+            // if let Some(extra) = extras.get_mut(ingredient.chemical.as_str()) {
+            //     let extra_to_take = std::cmp::min(count_needed, *extra);
+            //     count_needed -= extra_to_take;
+            //     *extra -= extra_to_take;
+            // }
+            *to_walk.entry(ingredient.chemical.clone()).or_insert(0.0) += count_needed;
+        }
+
+        // println!("to_walk: {:?}", &to_walk);
+        // println!("extras: {:?}", &extras);
+    }
+
     ore_needed
 }
 
 #[aoc(day14, part1)]
 fn part1(input: &Vec<Formula>) -> usize {
-    find_ore_needed(input)
+    let (ore, _) = find_ore_needed(input);
+    ore
 }
 
 #[aoc(day14, part2)]
 fn part2(formulas: &Vec<Formula>) -> usize {
-    unimplemented!();
+    let mut ore_left : f64 = 1000000000000.0;
+
+    let ore_needed_on_average = total_needed(formulas);
+
+
+    // 2804563 is too low
+    // 2804879
+    // 2805196
+
+    // 3281821 is too high
+
+    ((ore_left as f64) / ore_needed_on_average).floor() as usize
 }
 
 #[cfg(test)]
