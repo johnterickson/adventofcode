@@ -54,7 +54,7 @@ const ORE: &'static str = "ORE";
 
 struct Graph {
     pub ore_remaining: usize,
-    recipes: BTreeMap<String, Formula>,
+    pub recipes: BTreeMap<String, Formula>,
     pub available: BTreeMap<String, usize>,
 }
 
@@ -161,23 +161,56 @@ fn part1(input: &Vec<Formula>) -> usize {
 #[aoc(day14, part2)]
 fn part2(input: &Vec<Formula>) -> usize {
 
+    let mut hi = 1;
+    loop {
+        let mut g = Graph::new(input);
+        if None == g.ensure_available(FUEL, hi) {
+            break;
+        }
+
+        println!("Success at {}", hi);
+
+        hi *= 2;
+    }
+
+    let mut lo = hi / 2;
+    while lo + 1 < hi {
+        let mid = (lo + hi)/2;
+        let mut g = Graph::new(input);
+        if None == g.ensure_available(FUEL, mid) {
+            hi = mid;
+        } else {
+            lo = mid;
+        }
+        println!("{} {} {}", lo, mid, hi);
+    }
+
+    lo
+}
+
+fn part2_try1(input: &Vec<Formula>) -> usize {
+
     let mut g = Graph::new(input);
     let intial_ore_remaining = g.ore_remaining;
     let mut states = BTreeMap::new();
     let mut fuel = 0;
 
+    let mut estimates = VecDeque::new();
+
     loop {
 
         // println!("{:?}", &g.available);
-        if let Some((previous_fuel,previous_ore_remaining)) = states.insert(g.available.clone(), (fuel, g.ore_remaining)) {
-            println!("Loop from {} {} to {} {}", previous_fuel, previous_ore_remaining, fuel, g.ore_remaining);
-            println!("{:?}", &g.available);
-            let fuel_created = fuel - previous_fuel;
-            let ore_used = previous_ore_remaining - g.ore_remaining;
-            let loops_to_simulate = g.ore_remaining / ore_used;
-            fuel += fuel_created * loops_to_simulate;
-            g.ore_remaining -= ore_used * loops_to_simulate;
-            break;
+        if g.recipes.len() < 20 {
+            if let Some((previous_fuel,previous_ore_remaining)) = states.insert(g.available.clone(), (fuel, g.ore_remaining)) {
+                println!("Loop from {} {} to {} {}", previous_fuel, previous_ore_remaining, fuel, g.ore_remaining);
+                println!("{:?}", &g.available);
+                let fuel_created = fuel - previous_fuel;
+                let ore_used = previous_ore_remaining - g.ore_remaining;
+                let loops_to_simulate = g.ore_remaining / ore_used;
+                fuel += fuel_created * loops_to_simulate;
+                g.ore_remaining -= ore_used * loops_to_simulate;
+                break;
+            }
         }
 
         if None == g.ensure_available(FUEL, 1) {
@@ -189,7 +222,21 @@ fn part2(input: &Vec<Formula>) -> usize {
         fuel += 1;
 
         if fuel % 1000 == 0 {
-            println!("1 fuel <-> {} ore as of {} fuel", ((intial_ore_remaining - g.ore_remaining) as f64)/(fuel as f64), fuel);
+            let ore_per_fuel_estimate = ((intial_ore_remaining - g.ore_remaining) as f64)/(fuel as f64);
+            let fuel_estimate = ((intial_ore_remaining as f64) / ore_per_fuel_estimate).round() as usize;
+            
+            estimates.push_front(fuel_estimate);
+            if estimates.len() > 20 {
+                println!("1 fuel <-> {} ore as of {} fuel for total of {}: {:?}", ore_per_fuel_estimate, fuel, fuel_estimate, estimates);
+
+                estimates.pop_back();
+
+                if g.recipes.len() >= 20 {
+                    if estimates.iter().all(|e| *e == fuel_estimate) {
+                        return fuel_estimate;
+                    }
+                }
+            }
         }
     }
 
@@ -208,6 +255,8 @@ fn part2(input: &Vec<Formula>) -> usize {
     // 2805196
 
     // 3281821 is too high
+
+    // 3281820 is correcct
 
     fuel
 }
