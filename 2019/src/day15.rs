@@ -4,7 +4,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::collections::VecDeque;
 
 use crate::intcode::*;
-use rand::Rng;
 
 #[aoc_generator(day15)]
 fn parse_input(input: &str) -> Result<Vec<isize>, ParseIntError> {
@@ -59,7 +58,6 @@ enum Phase {
 fn part1(program: &[isize]) -> usize {
     let mut comp = IntCode::new(program);
     let mut map : BTreeMap<(isize,isize), char> = BTreeMap::new();
-    let mut rng = rand::thread_rng();
 
     let mut cur = (0,0);
 
@@ -232,7 +230,6 @@ fn part1(program: &[isize]) -> usize {
 fn part2(program: &[isize]) -> usize {
     let mut comp = IntCode::new(program);
     let mut map : BTreeMap<(isize,isize), char> = BTreeMap::new();
-    let mut rng = rand::thread_rng();
 
     let mut cur = (0,0);
 
@@ -373,13 +370,13 @@ fn part2(program: &[isize]) -> usize {
             }
         }
 
-        for y in min_y..=max_y {
-            for x in min_x..=max_x {
-                print!("{}", map.get(&(x,y)).unwrap_or(&' '));
-            }
-            println!();
-        }
-        println!();
+        // for y in min_y..=max_y {
+        //     for x in min_x..=max_x {
+        //         print!("{}", map.get(&(x,y)).unwrap_or(&' '));
+        //     }
+        //     println!();
+        // }
+        // println!();
 
         depth += 1;
     }

@@ -16,6 +16,7 @@ mod intcode;
 // mod day13;
 // mod day14;
 mod day15;
+mod day17;
 
 aoc_lib! { year = 2019, extra_alternatives = ["fnv"] 
 }
