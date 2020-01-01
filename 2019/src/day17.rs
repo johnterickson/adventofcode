@@ -10,41 +10,18 @@ fn parse_input(input: &str) -> Result<Vec<isize>, ParseIntError> {
     input.split(',').map(|l| l.parse()).collect()
 }
 
-
 #[aoc(day17, part1)]
 fn part1(program: &[isize]) -> usize {
+    let (_rows, align_sum) = create_map(program);
+    align_sum
+}
+
+fn create_map(program: &[isize]) -> (Vec<Vec<char>>, usize) {
     let mut comp = IntCode::new(program);
-    let mut map : BTreeMap<(isize,isize), char> = BTreeMap::new();
-
-    let mut cur = (0,0);
-
     let mut row = Vec::new();
     let mut rows = Vec::new();
-
     comp.run(
         |action: CallbackAction| {
-
-            // println!("{:?} {:?} {:?}", cur, action, attempted_move);
-
-            // let min_x = map.iter().map(|((x,_y),_c)| *x).min().unwrap();
-            // let max_x = map.iter().map(|((x,_y),_c)| *x).max().unwrap();
-            // let min_y = map.iter().map(|((_x,y),_c)| *y).min().unwrap();
-            // let max_y = map.iter().map(|((_x,y),_c)| *y).max().unwrap();
-
-            // println!("Current: {:?}", &cur);
-            // println!("Queue:");
-            // for m in &q {
-            //     println!("{:?}", m);
-            // }
-            // for y in min_y..=max_y {
-            //     for x in min_x..=max_x {
-            //         print!("{}", map.get(&(x,y)).unwrap_or(&' '));
-            //     }
-            //     println!();
-            // }
-            // println!();
-
-            // println!("{:?} {},{} facing {}", action, x, y, dir);
             match action {
                 CallbackAction::ReadInput => {
                     unimplemented!();
@@ -66,17 +43,6 @@ fn part1(program: &[isize]) -> usize {
                 }
             }
         });
-
-    
-
-    for row in &rows {
-        for c in row {
-            print!("{}", c);
-        }
-        println!();
-    }
-    println!();
-
 
     let max_y = rows.len() - 1;
     let max_x = rows[0].len() - 1;
@@ -108,18 +74,22 @@ fn part1(program: &[isize]) -> usize {
         }
     }
 
+    
+
     for row in &rows {
         for c in row {
             print!("{}", c);
         }
         println!();
     }
-
-    align_sum
+    println!();
+    (rows, align_sum)
 }
 
 #[aoc(day17, part2)]
 fn part2(program: &[isize]) -> usize {
+    let (rows, align_sum) = create_map(program);
+
     unimplemented!();
 }
 
