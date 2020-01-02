@@ -88,8 +88,11 @@ fn create_map(program: &[isize]) -> (Vec<Vec<char>>, usize) {
 
 #[aoc(day17, part2)]
 fn part2(program: &[isize]) -> usize {
-    let (rows, align_sum) = create_map(program);
+    let (rows, _align_sum) = create_map(program);
 
+    let mut program = program.to_vec();
+    program[0] = 2;
+    let program = &program;
     unimplemented!();
 }
 
