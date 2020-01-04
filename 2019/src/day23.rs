@@ -76,7 +76,7 @@ fn part1(program: &[isize]) -> isize {
                                     let mut eof_y = eof_y.lock().unwrap();
                                     if eof_y.is_none() {
                                         *eof_y = Some(output);
-                                        dbg!(eof_y);
+                                        dbg!(output);
                                     }
                                 } else {
                                     let mut node = nodes[out_addr.unwrap()].lock().unwrap();
@@ -93,7 +93,7 @@ fn part1(program: &[isize]) -> isize {
                 });
             });
         }
-    });
+    }).unwrap();
 
     let eof_y = eof_y.lock().unwrap();
     eof_y.unwrap()
@@ -137,9 +137,9 @@ impl Router {
     }
 
     fn attach(&self, addr: usize) -> Receiver<Packet> {
-        let mut nodes = self.nodes.read().unwrap();
-        let nodes = &*nodes;
-        let nodes = nodes.as_ref().unwrap();
+        let mut nodes = self.nodes.write().unwrap();
+        let nodes = &mut *nodes;
+        let nodes = nodes.as_mut().unwrap();
         let (send, recv) = sync_channel(1000);
         nodes.insert(addr, RwLock::new(Node {
             send,
