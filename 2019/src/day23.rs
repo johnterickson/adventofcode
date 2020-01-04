@@ -110,16 +110,14 @@ enum Packet {
 
 struct Node {
     send: SyncSender<Packet>,
-    empty_reads: usize,
+    is_idle: bool,
 }
 
 
 const NAT : usize = 255;
-const idle_threshold : usize = 1;
-
 
 struct Router {
-    nodes: RwLock<Option<BTreeMap<usize,Node>>>
+    nodes: RwLock<Option<BTreeMap<usize,RwLock<Node>>>>
 }
 
 impl Router {
@@ -133,54 +131,53 @@ impl Router {
         let nodes = self.nodes.read().unwrap();
         if let Some(nodes) = &*nodes {
             // println!("Sending {:?} to {}", packet, addr);
-            nodes[&addr].send.send(packet).unwrap();
+            let node = nodes[&addr].read().unwrap();
+            node.send.send(packet).unwrap();
         }
     }
 
     fn attach(&self, addr: usize) -> Receiver<Packet> {
-        let mut nodes = self.nodes.write().unwrap();
-        let nodes = &mut *nodes;
-        let nodes = nodes.as_mut().unwrap();
+        let mut nodes = self.nodes.read().unwrap();
+        let nodes = &*nodes;
+        let nodes = nodes.as_ref().unwrap();
         let (send, recv) = sync_channel(1000);
-        nodes.insert(addr, Node {
+        nodes.insert(addr, RwLock::new(Node {
             send,
-            empty_reads: 0
-        });
+            is_idle: false,
+        }));
         recv
     }
 
     fn mark_not_idle(&self, addr: usize) {
-        let mut nodes = self.nodes.write().unwrap();
-        if let Some(nodes) = &mut *nodes {
-            nodes.get_mut(&addr).unwrap().empty_reads = 0;
+        let nodes = self.nodes.read().unwrap();
+        if let Some(nodes) = &*nodes {
+            let mut node = nodes[&addr].write().unwrap();
+            node.is_idle = false;
         }
     }
 
     fn mark_idle(&self, addr: usize) {
         let mut nodes = self.nodes.write().unwrap();
         if let Some(nodes) = &mut *nodes {
-            let empty_reads = &mut nodes.get_mut(&addr).unwrap().empty_reads;
-            *empty_reads += 1;
-            if *empty_reads > idle_threshold {
-                drop(nodes);
-                std::thread::yield_now();
-            }
+            let mut node = nodes[&addr].write().unwrap();
+            node.is_idle = true;
         }
     }
 
     fn check_for_idle(&self) -> bool {
-        let mut nodes = self.nodes.write().unwrap();
-        let nodes = &mut *nodes;
-        let nodes = nodes.as_mut().unwrap();
+        let nodes = self.nodes.read().unwrap();
+        let nodes = &*nodes;
+        let nodes = nodes.as_ref().unwrap();
         let mut active_nodes = nodes.iter()
             .filter(|(k,_v)| **k != NAT)
-            .filter(|(_addr,node)| node.empty_reads < idle_threshold);
+            .filter(|(_addr,node)| !node.read().unwrap().is_idle);
         if let Some((addr,node)) = active_nodes.next() {
             // println!("Some nodes are not idle: e.g. node {} has {} empty reads.", addr, node.empty_reads);
             false
         } else {
-            for n in nodes.values_mut() {
-                n.empty_reads = 0;
+            // reset
+            for n in nodes.values() {
+                n.write().unwrap().is_idle = false;
             }
             true
         }
@@ -262,6 +259,7 @@ fn run_node(program: &[isize], addr: usize, router: &Router, recv: Receiver<Pack
                     },
                     Err(RecvTimeoutError::Timeout) => {
                         router.mark_idle(addr);
+                        std::thread::yield_now();
                         Some(-1)
                     },
                     Err(RecvTimeoutError::Disconnected) => None,
