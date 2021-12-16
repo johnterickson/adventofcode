@@ -1,0 +1,4 @@
+{
+    "rust-analyzer.diagnostics.enableExperimental": false,
+    "rust-analyzer.diagnostics.enable": true
+}
