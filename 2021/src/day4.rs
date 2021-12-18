@@ -121,7 +121,7 @@ fn part2(inputs: &(Vec<usize>, Vec<[[usize;5]; 5]>)) -> usize {
 
     let mut winners = BTreeSet::new();
     let len = boards.len();
-    dbg!(len);
+    // dbg!(len);
 
     for d in draws {
         // dbg!(&d);
@@ -132,7 +132,7 @@ fn part2(inputs: &(Vec<usize>, Vec<[[usize;5]; 5]>)) -> usize {
                         hits[y] |= 1 << x;
                         if is_winner(hits) {
                             if winners.insert(bi) {
-                                dbg!(&bi, winners.len());
+                                // dbg!(&bi, winners.len());
                                 if winners.len() == len {
                                     let mut sum_unmarked = 0;
                                     for yy in 0..5 {
@@ -142,7 +142,7 @@ fn part2(inputs: &(Vec<usize>, Vec<[[usize;5]; 5]>)) -> usize {
                                             }
                                         }
                                     }
-                                    dbg!(d, sum_unmarked);
+                                    // dbg!(d, sum_unmarked);
                                     return d * sum_unmarked;
                                 }
                             }
