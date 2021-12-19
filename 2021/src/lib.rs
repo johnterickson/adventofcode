@@ -7,7 +7,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
-// mod day8;
+mod day8;
 // mod day9;
 // mod day10;
 // mod day11;
@@ -18,5 +18,6 @@ mod day7;
 // mod day17;
 // mod day23;
 
-aoc_lib! { year = 2021, extra_alternatives = ["fnv"] 
+aoc_lib! { 
+    year = 2021, extra_alternatives = ["fnv"] 
 }
