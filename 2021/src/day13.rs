@@ -39,6 +39,7 @@ impl Grid {
 
 impl Display for Grid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f)?;
         for y in 0..self.rows() {
             for x in 0..self.cols() {
                 write!(f, "{}", if self.dots.contains(&(x,y)) { "#" } else { "." })?;
@@ -127,6 +128,18 @@ fn part1(ins: &(Grid,Vec<Fold>)) -> usize {
     grid.dots.len()
 }
 
+#[aoc(day13, part2)]
+fn part2(ins: &(Grid,Vec<Fold>)) -> Grid { 
+    let (grid, folds) = ins;
+    let mut grid: Grid = grid.clone();
+
+    for f in folds {
+        fold(&mut grid, *f);
+    }
+
+    grid
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,8 +172,8 @@ fold along y=7
 fold along x=5"#);
         let mut grid = String::new();
         write!(&mut grid, "{}", &input.0).unwrap();
-        assert_eq!(grid.as_str().trim(), 
-r#"...#..#..#.
+        assert_eq!(grid.as_str(), r#"
+...#..#..#.
 ....#......
 ...........
 #..........
@@ -174,19 +187,21 @@ r#"...#..#..#.
 ....#......
 ......#...#
 #..........
-#.#........"#);
+#.#........
+"#);
 
         fold(&mut input.0, input.1[0]);
 
         let mut grid = String::new();
         write!(&mut grid, "{}", &input.0).unwrap();
 
-        assert_eq!(grid.as_str().trim(), 
-r#"#.##..#..#.
+        assert_eq!(grid.as_str(), r#"
+#.##..#..#.
 #...#......
 ......#...#
 #...#......
-.#.#..#.###"#);
+.#.#..#.###
+"#);
 
         assert_eq!(input.0.dots.len(), 17);
     
@@ -196,11 +211,12 @@ r#"#.##..#..#.
         let mut grid = String::new();
         write!(&mut grid, "{}", &input.0).unwrap();
 
-        assert_eq!(grid.as_str().trim(), 
-r#"#####
+        assert_eq!(grid.as_str(), r#"
+#####
 #...#
 #...#
 #...#
-#####"#);
+#####
+"#);
     }
 }
