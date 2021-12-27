@@ -71,6 +71,8 @@ fn step2(template: &mut BTreeMap<(char,char),u64>, rules: &BTreeMap<(char,char),
 fn to_template_pairs(template: &str) -> BTreeMap<(char,char),u64> {
     let template: Vec<char> = template.chars().collect();
     let mut template_pairs = BTreeMap::new();
+    template_pairs.insert(('$',*template.first().unwrap()), 1);
+    template_pairs.insert((*template.last().unwrap(),'$'), 1);
     for pair in template.windows(2) {
         *template_pairs.entry((pair[0], pair[1])).or_insert(0) += 1;
     }
@@ -87,16 +89,15 @@ fn part2_inner(ins: &(String,BTreeMap<(char,char),char>), steps: usize) -> u64 {
 
 
     let mut char_counts = BTreeMap::new();
-    for (c, count) in template_pairs.iter()
-        .map(|((c1,c2), count)| [(c1, count), (c2, count)])
-        .flatten()
+    for ((c,_), count) in template_pairs.iter()
     {
+        if *c == '$' { continue; }
         *char_counts.entry(*c).or_insert(0) += *count;
     }
-    let mut char_counts: Vec<_> = char_counts.iter().collect();
-    char_counts.sort_by(|a,b| a.1.cmp(&b.1));
+    let mut counts: Vec<_> = char_counts.iter().collect();
+    counts.sort_by(|a,b| a.1.cmp(&b.1));
 
-    dbg!(&counts);
+    // dbg!(&counts);
     counts[counts.len()-1].1 - counts[0].1
 }
 
