@@ -3,11 +3,11 @@ use std::{fmt::Display, collections::BTreeSet, str::Lines};
 use aoc_runner_derive::{aoc, aoc_generator};
 
 #[derive(Clone)]
-struct Grid {
+struct SparseGrid {
     dots: BTreeSet<(usize,usize)>
 }
 
-impl Grid {
+impl SparseGrid {
     fn get(&self, x: usize, y: usize) -> bool {
         self.dots.contains(&(x,y))
     }
@@ -20,7 +20,7 @@ impl Grid {
         self.dots.iter().map(|(x,_)| *x).max().unwrap() + 1
     }
 
-    fn parse(mut lines: &mut Lines) -> Grid {
+    fn parse(mut lines: &mut Lines) -> SparseGrid {
         let mut dots = BTreeSet::new();
         for line in &mut lines {
             let line = line.trim();
@@ -33,11 +33,11 @@ impl Grid {
                 usize::from_str_radix(points.next().unwrap().trim(), 10).unwrap()
             ));
         }
-        Grid { dots }
+        SparseGrid { dots }
     }
 }
 
-impl Display for Grid {
+impl Display for SparseGrid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f)?;
         for y in 0..self.rows() {
@@ -71,16 +71,16 @@ impl Fold {
 }
 
 #[aoc_generator(day13)]
-fn parse_input(input: &str) -> (Grid,Vec<Fold>) {
+fn parse_input(input: &str) -> (SparseGrid,Vec<Fold>) {
     let mut lines = input.lines();
 
-    let dots = Grid::parse(&mut lines);
+    let dots = SparseGrid::parse(&mut lines);
     let folds = lines.map(Fold::parse).collect();
 
     (dots, folds)
 }
 
-fn fold(grid: &mut Grid, fold: Fold)
+fn fold(grid: &mut SparseGrid, fold: Fold)
 {
     match fold {
         Fold::X(axis) => {
@@ -119,9 +119,9 @@ fn fold(grid: &mut Grid, fold: Fold)
 }
 
 #[aoc(day13, part1)]
-fn part1(ins: &(Grid,Vec<Fold>)) -> usize { 
+fn part1(ins: &(SparseGrid,Vec<Fold>)) -> usize { 
     let (grid, folds) = ins;
-    let mut grid: Grid = grid.clone();
+    let mut grid: SparseGrid = grid.clone();
 
     fold(&mut grid, folds[0]);
 
@@ -129,9 +129,9 @@ fn part1(ins: &(Grid,Vec<Fold>)) -> usize {
 }
 
 #[aoc(day13, part2)]
-fn part2(ins: &(Grid,Vec<Fold>)) -> Grid { 
+fn part2(ins: &(SparseGrid,Vec<Fold>)) -> SparseGrid { 
     let (grid, folds) = ins;
-    let mut grid: Grid = grid.clone();
+    let mut grid: SparseGrid = grid.clone();
 
     for f in folds {
         fold(&mut grid, *f);
