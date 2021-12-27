@@ -16,12 +16,6 @@ impl BitStream {
         // dbg!(n,bits);
         bits
     }
-
-    fn discard_to_nibble(&mut self) {
-        while self.0.len() % 4 != 0 {
-            let _ = self.0.pop_front();
-        }
-    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -42,15 +36,15 @@ impl Packet {
         let t = bs.read_bits(3);
         let content = match t {
             4 => {
-                let mut bytes = Vec::new();
+                let mut nibbles = Vec::new();
                 loop {
                     let byte = bs.read_bits(5) as u8;
-                    bytes.push(byte & 0xF);
+                    nibbles.push(byte & 0xF);
                     if byte & 0x10 == 0 {
                         break;
                     }
                 }
-                PacketContent::Literal(bytes)
+                PacketContent::Literal(nibbles)
             }
             op => {
                 let mut subpackets = Vec::new();
@@ -80,6 +74,40 @@ impl Packet {
             }
         };
         Packet { version, content}
+    }
+
+    fn eval(&self) -> u64 {
+        match &self.content {
+            PacketContent::Literal(nibbles) => {
+                let mut v = 0u64;
+                for nibble in nibbles {
+                    v <<= 4;
+                    v |= *nibble as u64;
+                }
+                v
+            }
+            PacketContent::Operator(op, subpackets) => {
+                let mut vals = subpackets.iter().map(|p| p.eval());
+                match op {
+                    0 => vals.sum(),
+                    1 => vals.product(),
+                    2 => vals.min().unwrap(),
+                    3 => vals.max().unwrap(),
+                    5 | 6 | 7 => {
+                        assert_eq!(2, subpackets.len());
+                        let left = vals.next().unwrap();
+                        let right = vals.next().unwrap();
+                        match op {
+                            5 => if left > right {1} else {0},
+                            6 => if left < right {1} else {0},
+                            7 => if left == right {1} else {0},
+                            _ => panic!()
+                        }
+                    }
+                    _ => panic!(),
+                }
+            }
+        }
     }
 }
 
@@ -118,6 +146,13 @@ fn part1(bits: &BitStream) -> u64 {
     let mut bits: BitStream = bits.clone();
     let p = Packet::read(&mut bits);
     sum_versions(&p)
+}
+
+#[aoc(day16, part2)]
+fn part2(bits: &BitStream) -> u64 { 
+    let mut bits: BitStream = bits.clone();
+    let p = Packet::read(&mut bits);
+    p.eval()
 }
 
 #[cfg(test)]
@@ -188,5 +223,32 @@ mod tests {
     fn part1_example7() {
         let bs = parse_input("A0016C880162017C3686B18A3D4780");
         assert_eq!(31, part1(&bs));
+    }
+
+    #[test]
+    fn part2_examples() {
+        let bs = parse_input("C200B40A82");
+        assert_eq!(3, part2(&bs));
+
+        let bs = parse_input("04005AC33890");
+        assert_eq!(54, part2(&bs));
+
+        let bs = parse_input("880086C3E88112");
+        assert_eq!(7, part2(&bs));
+
+        let bs = parse_input("CE00C43D881120");
+        assert_eq!(9, part2(&bs));
+
+        let bs = parse_input("D8005AC2A8F0");
+        assert_eq!(1, part2(&bs));
+
+        let bs = parse_input("F600BC2D8F");
+        assert_eq!(0, part2(&bs));
+        
+        let bs = parse_input("9C005AC2F8F0");
+        assert_eq!(0, part2(&bs));
+
+        let bs = parse_input("9C0141080250320F1802104A08");
+        assert_eq!(1, part2(&bs));
     }
 }
