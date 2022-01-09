@@ -1,4 +1,4 @@
-use std::{str::Chars, iter::Peekable, fmt::Display, collections::BTreeMap, slice::SliceIndex};
+use std::{str::Chars, iter::Peekable, fmt::Display, collections::BTreeMap};
 
 use aoc_runner_derive::{aoc, aoc_generator};
 
@@ -63,42 +63,46 @@ struct NodeTree {
 
 impl NodeTree {
     fn find_explode(&self, depth: usize, id: &NodeId) -> Option<NodeId> {
-        if depth == 4 {
-            Some(*id)
-        } else {
-            match &self.nodes[&id] {
-                Node::Literal(_) => None,
-                Node::Pair(l, r) => {
-                    if let Some(id) = self.find_explode(depth + 1, l) {
-                        Some(id)
-                    }
-                    else if let Some(id) = self.find_explode(depth + 1, r) {
-                        Some(id)
-                    } else {
-                        None
-                    }
-                },
-            }
+        match &self.nodes[&id] {
+            Node::Literal(_) => None,
+            Node::Pair(l, r) => {
+                if depth >= 4 {
+                    Some(*id)
+                }
+                else if let Some(id) = self.find_explode(depth + 1, l) {
+                    Some(id)
+                }
+                else if let Some(id) = self.find_explode(depth + 1, r) {
+                    Some(id)
+                } else {
+                    None
+                }
+            },
         }
     } 
 
     fn in_order<F: FnMut(NodeId)>(&self, id: NodeId, f: &mut F) {
         let node = self.nodes[&id];
+        println!("{:?} -> {:?}", id, &node);
 
         match node {
             Node::Literal(_) => {},
             Node::Pair(l, _) => self.in_order(l, f),
         }
+
         f(id);
+
         match node {
             Node::Literal(_) => {},
-            Node::Pair(r, _) => self.in_order(r, f),
+            Node::Pair(_, r) => self.in_order(r, f),
         }
     }
 
     fn explode(&mut self, id: NodeId) {
         // replace with a zero
         let node = self.nodes.insert(id, Node::Literal(0)).unwrap();
+        println!("{}", &self);
+
         if let Node::Pair(l_id, r_id) = node {
             let mut remove = |parent_id, id| {
                 let n = self.nodes.remove(&id).unwrap();
@@ -112,21 +116,25 @@ impl NodeTree {
             let l = remove(id, l_id);
             let r = remove(id, r_id);
 
+            println!("{}", &self);
+
             let nodes_in_order = {
                 let mut nodes_in_order = Vec::new();
                 self.in_order(NodeId(0), &mut |n| {
                     match self.nodes[&n] {
-                        Node::Literal(_) => nodes_in_order.push(n),
+                        Node::Literal(v) => nodes_in_order.push((n,v)),
                         Node::Pair(_, _) => {},
                     }
                 });
                 nodes_in_order
             };
 
-            let index = nodes_in_order.iter().position(|i| i == &id).unwrap();
+            println!("{:?}", &nodes_in_order);
+            let index = nodes_in_order.iter().position(|(i,v)| i == &id).unwrap();
+            assert_eq!(&Node::Literal(0), &self.nodes[&nodes_in_order[index].0]);
 
             if let Some(previous_index) = index.checked_sub(1) {
-                if let Some(prev_id) = nodes_in_order.get(previous_index) {
+                if let Some((prev_id, prev_val)) = nodes_in_order.get(previous_index) {
                     match self.nodes.get_mut(&prev_id).unwrap() {
                         Node::Literal(ref mut n) => *n += l,
                         Node::Pair(_, _) => panic!(),
@@ -134,7 +142,7 @@ impl NodeTree {
                 }
             }
             if let Some(next_index) = index.checked_add(1) {
-                if let Some(next_id) = nodes_in_order.get(next_index) {
+                if let Some((next_id, next_val)) = nodes_in_order.get(next_index) {
                     match self.nodes.get_mut(&next_id).unwrap() {
                         Node::Literal(ref mut n) => *n += r,
                         Node::Pair(_, _) => panic!(),
@@ -192,7 +200,7 @@ mod tests {
     use std::fmt::Write;
 
     #[test]
-    fn part1_examples() {
+    fn parsing() {
        let nums =
            "[1,2]
            [[1,2],3]
@@ -209,11 +217,35 @@ mod tests {
         }
     }
 
+    fn test_explode(input: &str, expected: &str) {
+        dbg!(input, expected);
+        let mut input = parse_input(input);
+        let input = &mut input[0];
+        if let Some(to_explode) = input.find_explode(0, &NodeId(0)) {
+            if let Node::Pair(l, r) = input.nodes[&to_explode] {
+                // assert_eq!(Node::Literal(9), input.nodes[&l]);
+                // assert_eq!(Node::Literal(8), input.nodes[&r]);
+            } else {
+                panic!("Expected pair but found: {:?} -> {:?}", to_explode, input.nodes[&to_explode]);
+            }
+
+            input.explode(to_explode);
+
+            let mut formatted = String::new();
+            write!(&mut formatted, "{}", input).unwrap();
+            assert_eq!(formatted.as_str(), expected.trim());
+        } else {
+            panic!();
+        }
+    }
+
     #[test]
     fn part1_example1() {
-       let nums =
-           "[[[[[9,8],1],2],3],4]";
-        let parsed = parse_input(nums);
-        let tree = &parsed[0];
+        test_explode("[[[[[9,8],1],2],3],4]", "[[[[0,9],2],3],4]");
+        test_explode("[7,[6,[5,[4,[3,2]]]]]", "[7,[6,[5,[7,0]]]]");
+        test_explode("[[6,[5,[4,[3,2]]]],1]", "[[6,[5,[7,0]]],3]");
+        test_explode("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]");
+        test_explode("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[7,0]]]]");
+        
     }
 }
