@@ -1,0 +1,29 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: |
+        set -e
+        cd 2018 
+        cargo test
+        cd 2019 
+        cargo test
+        cd 2021
+        cargo test
+        cd 2022
+        cargo test
