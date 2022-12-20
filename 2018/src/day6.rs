@@ -11,8 +11,8 @@ pub struct Point {
 impl fmt::Debug for Point {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let c = match self.c {
-            0...26 => (('a' as u8) + self.c) as char,
-            26...54 => (('A' as u8) - 26 + self.c) as char,
+            0..=25 => (('a' as u8) + self.c) as char,
+            26..=51 => (('A' as u8) - 26 + self.c) as char,
             _ => unimplemented!()
         };
         write!(f, "{}", c)
