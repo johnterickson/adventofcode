@@ -1,0 +1,14 @@
+[package]
+name = "advent-of-code-2022"
+version = "0.2.0"
+authors = ["John Erickson <john.t.erickson@gmail.com>"]
+edition = "2021"
+
+[dependencies]
+aoc-runner = "*"
+aoc-runner-derive = "*"
+itertools = "*"
+lazy_static = "*"
+pathfinding = "*"
+strum = "0.24"
+strum_macros = "0.24"
