@@ -21,9 +21,9 @@ jobs:
         set -e
         cd 2018 
         cargo test
-        cd 2019 
+        cd ../2019 
         cargo test
-        cd 2021
+        cd ../2021
         cargo test
-        cd 2022
+        cd ../2022
         cargo test
