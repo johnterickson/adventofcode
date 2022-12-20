@@ -19,6 +19,7 @@ jobs:
     - name: Build
       run: |
         set -e
+        rustup update
         cd 2018 
         cargo test
         cd ../2019 
