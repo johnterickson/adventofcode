@@ -19,12 +19,12 @@ fn parse_input(input: &str) -> BTreeMap<u32,Vec<BTreeMap<String,u32>>> {
         let mut game_tokens = game_tokens.split(';');
 
         while let Some(round_tokens) = game_tokens.next() {
-            dbg!(round_tokens);
+            // dbg!(round_tokens);
             let mut draw = BTreeMap::new();
             let mut draw_tokens = round_tokens.trim().split(',');
             while let Some(draw_token) = draw_tokens.next() {
                 let draw_token = draw_token.trim();
-                dbg!(draw_token);
+                // dbg!(draw_token);
                 let mut draw_token = draw_token.split_whitespace();
                 let count = draw_token.next().unwrap().parse().unwrap();
                 let color = draw_token.next().unwrap().trim().to_string();
@@ -61,6 +61,20 @@ fn part1(games: &BTreeMap<u32,Vec<BTreeMap<String,u32>>>) -> u32 {
     sum
 }
 
+
+#[aoc(day2, part2)]
+fn part2(games: &BTreeMap<u32,Vec<BTreeMap<String,u32>>>) -> u32 {
+    let mut sum = 0;
+    for (_, rounds) in games {
+        let max_red = rounds.iter().map(|round| round.get("red").unwrap_or(&0)).max().unwrap();
+        let max_green = rounds.iter().map(|round| round.get("green").unwrap_or(&0)).max().unwrap();
+        let max_blue = rounds.iter().map(|round| round.get("blue").unwrap_or(&0)).max().unwrap();
+        
+        sum += max_red * max_green * max_blue;
+    }
+    sum
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -77,17 +91,15 @@ mod tests {
         assert_eq!(part1(&input), 8);
     }
 
-    // #[test]
-    // fn part2_example() {
-    //     let input = parse_input(r#"
-    //         two1nine
-    //         eightwothree
-    //         abcone2threexyz
-    //         xtwone3four
-    //         4nineeightseven2
-    //         zoneight234
-    //         7pqrstsixteen
-    //     "#.trim());
-    //     assert_eq!(part2(&input), 281);
-    // }
+    #[test]
+    fn part2_example() {
+        let input = parse_input(r#"
+        Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+        Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+        Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+        Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+        Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+        "#.trim());
+        assert_eq!(part2(&input), 2286);
+    }
 }
