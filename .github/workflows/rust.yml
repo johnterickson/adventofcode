@@ -28,3 +28,5 @@ jobs:
         cargo test
         cd ../2022
         cargo test
+        cd ../2023
+        cargo test
