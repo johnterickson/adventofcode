@@ -2,7 +2,6 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use aoc_runner_derive::{aoc, aoc_generator};
 
-
 #[aoc_generator(day4)]
 fn parse_input(input: &str) -> BTreeMap<u32,(BTreeSet<u32>,BTreeSet<u32>)> {
     let mut inputs = BTreeMap::new();
