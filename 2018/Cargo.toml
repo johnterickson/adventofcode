@@ -5,6 +5,6 @@ authors = ["John Erickson <jerick@microsoft.com>"]
 edition = "2021"
 
 [dependencies]
-aoc-runner = "0.2.0"
-aoc-runner-derive = "0.2.0"
-nom = "*"
+aoc-runner = "*"
+aoc-runner-derive = "*"
+nom = "6.*"
