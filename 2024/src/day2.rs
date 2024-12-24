@@ -39,9 +39,16 @@ Analyze the unusual data from the engineers. How many reports are safe?
 
 #[aoc_generator(day2)]
 fn parse_input(input: &str) -> Vec<Vec<u32>> {
-    input.trim().lines().map(|line| {
-        line.trim().split_whitespace().map(|val| val.parse().unwrap()).collect()
-    }).collect()
+    input
+        .trim()
+        .lines()
+        .map(|line| {
+            line.trim()
+                .split_whitespace()
+                .map(|val| val.parse().unwrap())
+                .collect()
+        })
+        .collect()
 }
 
 fn is_safe(report: &Vec<u32>) -> bool {
@@ -92,27 +99,28 @@ Thanks to the Problem Dampener, 4 reports are actually safe!
 Update your analysis by handling situations where the Problem Dampener can remove a single level from unsafe reports. How many reports are now safe?
 */
 
-
-
 #[aoc(day2, part2)]
 fn part2(reports: &Vec<Vec<u32>>) -> u32 {
-    reports.iter().enumerate().filter(|(report_index, report)| {
-        if is_safe(report) {
-            return true;
-        }
-
-        for i in 0..report.len() {
-            let mut copy = (*report).clone();
-            copy.remove(i);
-            if is_safe(&copy) {
+    reports
+        .iter()
+        .enumerate()
+        .filter(|(_report_index, report)| {
+            if is_safe(report) {
                 return true;
             }
-        }
 
-        false
-    }).count() as u32
+            for i in 0..report.len() {
+                let mut copy = (*report).clone();
+                copy.remove(i);
+                if is_safe(&copy) {
+                    return true;
+                }
+            }
+
+            false
+        })
+        .count() as u32
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -120,27 +128,33 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        let input = parse_input(r#"
+        let input = parse_input(
+            r#"
 7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9
-        "#.trim());
+        "#
+            .trim(),
+        );
         assert_eq!(part1(&input), 2);
     }
 
     #[test]
     fn part2_example() {
-        let input = parse_input(r#"
+        let input = parse_input(
+            r#"
 7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9
-        "#.trim());
+        "#
+            .trim(),
+        );
         assert_eq!(part2(&input), 4);
     }
 }

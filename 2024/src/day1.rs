@@ -1,7 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 
 #[aoc_generator(day1)]
-fn parse_input(input: &str) -> [Vec<u32>;2] {
+fn parse_input(input: &str) -> [Vec<u32>; 2] {
     let mut cols = [Vec::new(), Vec::new()];
     for line in input.trim().lines() {
         for val in line.trim().split_whitespace().zip(cols.iter_mut()) {
@@ -15,8 +15,12 @@ fn parse_input(input: &str) -> [Vec<u32>;2] {
 }
 
 #[aoc(day1, part1)]
-fn part1(cols: &[Vec<u32>;2]) -> u32 {
-    cols[0].iter().zip(&cols[1]).map(|(a,b)| a.abs_diff(*b)).sum()
+fn part1(cols: &[Vec<u32>; 2]) -> u32 {
+    cols[0]
+        .iter()
+        .zip(&cols[1])
+        .map(|(a, b)| a.abs_diff(*b))
+        .sum()
 }
 
 /*
@@ -51,10 +55,10 @@ Once again consider your left and right lists. What is their similarity score?
 */
 
 #[aoc(day1, part2)]
-fn part2(cols: &[Vec<u32>;2]) -> u32 {
+fn part2(cols: &[Vec<u32>; 2]) -> u32 {
     // compute similarity score
 
-    // functionally, this is correct, but we can be more efficient by 
+    // functionally, this is correct, but we can be more efficient by
     // taking advantage of the fact that the lists are sorted
     // cols[0].iter().map(|a| a * cols[1].iter().filter(|b| a == *b).count() as u32).sum()
 
@@ -66,7 +70,7 @@ fn part2(cols: &[Vec<u32>;2]) -> u32 {
             std::cmp::Ordering::Less => i += 1,
             std::cmp::Ordering::Equal => {
                 let n = cols[0][i];
-                // first count the number of times the number appears in the second list               
+                // first count the number of times the number appears in the second list
                 let right_count = cols[1][j..].iter().take_while(|&x| *x == n).count() as u32;
 
                 let item_score = n * right_count;
@@ -78,13 +82,12 @@ fn part2(cols: &[Vec<u32>;2]) -> u32 {
                 score += total_score_for_number;
                 i += left_count as usize;
                 j += right_count as usize;
-            },
+            }
             std::cmp::Ordering::Greater => j += 1,
         }
     }
     score
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -92,27 +95,33 @@ mod tests {
 
     #[test]
     fn part1_example() {
-        let input = parse_input(r#"
+        let input = parse_input(
+            r#"
             3   4
 4   3
 2   5
 1   3
 3   9
 3   3
-        "#.trim());
+        "#
+            .trim(),
+        );
         assert_eq!(part1(&input), 11);
     }
 
     #[test]
     fn part2_example() {
-        let input = parse_input(r#"
+        let input = parse_input(
+            r#"
             3   4
 4   3
 2   5
 1   3
 3   9
 3   3
-        "#.trim());
+        "#
+            .trim(),
+        );
         assert_eq!(part2(&input), 31);
     }
 }
