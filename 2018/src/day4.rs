@@ -1,7 +1,11 @@
 use std::iter;
 use std::collections::HashMap;
 use std::str::FromStr;
+use branch::alt;
+use bytes::complete::*;
+use combinator::{map, map_res};
 use nom::*;
+use sequence::{delimited, tuple};
 
 #[derive(Debug,PartialEq, Eq, PartialOrd, Ord)]
 pub enum SleepRecordAction {
@@ -10,15 +14,17 @@ pub enum SleepRecordAction {
     Wakes
 }
 
-named!(guard_id<&str, usize>,
-      delimited!(tag!("Guard #"), map_res!(take_while!(|c: char| c.is_digit(10)), usize::from_str), tag!(" begins shift"))
-);
+fn guard_id(input: &str) -> IResult<&str, usize> {
+  delimited(tag("Guard #"), map_res(take_while(|c: char| c.is_digit(10)), usize::from_str), tag(" begins shift"))(input)
+}
 
-named!(sleep_record_action<&str, SleepRecordAction>, alt!(
-    complete!(tag!("wakes up"))            => { |_| SleepRecordAction::Wakes } |
-    complete!(tag!("falls asleep"))        => { |_| SleepRecordAction::FallsAsleep } |
-    complete!(guard_id) => { |id: usize| SleepRecordAction::BeginShift(id) }
-));
+fn sleep_record_action(input: &str) -> IResult<&str, SleepRecordAction> {
+    alt((
+    map(tag("wakes up"),|_| SleepRecordAction::Wakes),
+    map(tag("falls asleep"), |_| SleepRecordAction::FallsAsleep),
+    map(guard_id, |id: usize| SleepRecordAction::BeginShift(id))
+    ))(input)
+}
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 pub struct Date {
@@ -27,36 +33,32 @@ pub struct Date {
     pub d : usize,
 }
 
-named!(year<&str, usize>,
-  map_res!(take_while_m_n!(1, 4, |c: char| c.is_digit(10)), usize::from_str)
-);
+fn year(input: &str) -> IResult<&str, usize> {
+  map_res(take_while_m_n(1, 4, |c: char| c.is_digit(10)), usize::from_str)(input)
+}
 
-named!(month<&str, usize>,
-  map_res!(take_while_m_n!(1, 2, |c: char| c.is_digit(10)), usize::from_str)
-);
+fn month(input: &str) -> IResult<&str, usize> {
+  map_res(take_while_m_n(1, 2, |c: char| c.is_digit(10)), usize::from_str)(input)
+}
 
-named!(day<&str, usize>,
-  map_res!(take_while_m_n!(1, 2, |c: char| c.is_digit(10)), usize::from_str)
-);
+fn day(input: &str) -> IResult<&str, usize> {
+  map_res(take_while_m_n(1, 2, |c: char| c.is_digit(10)), usize::from_str)(input)
+}
 
-named!(date<&str, Date>,
-  do_parse!(
-    y: year >>
-    tag!("-") >>
-    m: month >>
-    tag!("-") >>
-    d: day >>
-    (Date { y, m, d })
-  )
-);
+fn date(input: &str) -> IResult<&str, Date> {
+  map(
+    tuple((year, tag("-"), month, tag("-"), day)),
+    |(y, _, m, _, d)| Date { y, m, d }
+  )(input)
+}
 
-named!(hour<&str, usize>,
-  map_res!(take_while_m_n!(2, 2, |c: char| c.is_digit(10)), usize::from_str)
-);
+fn hour(input: &str) -> IResult<&str, usize> {
+  map_res(take_while_m_n(2, 2, |c: char| c.is_digit(10)), usize::from_str)(input)
+}
 
-named!(minute<&str, usize>,
-  map_res!(take_while_m_n!(2, 2, |c: char| c.is_digit(10)), usize::from_str)
-);
+fn minute(input: &str) -> IResult<&str, usize> {
+  map_res(take_while_m_n(2, 2, |c: char| c.is_digit(10)), usize::from_str)(input)
+}
 
 // [1518-11-01 00:00] Guard #10 begins shift
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -67,19 +69,12 @@ pub struct SleepRecord {
     pub a : SleepRecordAction,
 }
 
-named!(sleep_record<&str, SleepRecord>,
-  do_parse!(
-    tag!("[") >>
-    d: date >>
-    tag!(" ") >>
-    h: hour >>
-    tag!(":") >>
-    m: minute >>
-    tag!("] ") >>
-    a: sleep_record_action >> 
-    (SleepRecord { d, h, m, a })
-  )
-);
+fn sleep_record(input: &str) -> IResult<&str, SleepRecord> {
+  map(
+    tuple((tag("["), date, tag(" "), hour, tag(":"), minute, tag("] "), sleep_record_action)),
+    |(_, d, _, h, _, m, _, a)| SleepRecord { d, h, m, a }
+  )(input)
+}
 
 #[aoc_generator(day4)]
 pub fn input_generator(input: &str) -> Vec<SleepRecord> {

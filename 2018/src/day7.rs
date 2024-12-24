@@ -1,5 +1,8 @@
 use std::collections::{HashSet,HashMap, VecDeque};
+use bytes::complete::{tag, take};
+use combinator::{map, map_res};
 use nom::*;
+use sequence::tuple;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, PartialOrd, Ord)]
 pub struct StepName(pub char);
@@ -8,25 +11,21 @@ fn from_hex(input: &str) -> Result<StepName, std::num::ParseIntError> {
   Ok(StepName(input.chars().next().unwrap()))
 }
 
-named!(step_name<&str, StepName>,
-  map_res!(take!(1), from_hex)
-);
+fn step_name(input: &str) -> IResult<&str, StepName> {
+  map_res(take(1u32), from_hex)(input)
+}
 
 pub struct Requirement {
     pub name: StepName,
     pub dep: StepName,
 }
 
-named!(requirement<&str, Requirement>,
-  do_parse!(
-    tag!("Step ") >>
-    dep: step_name >>
-    tag!(" must be finished before step ") >>
-    name: step_name >>
-    tag!(" can begin.") >>
-    (Requirement { name, dep})
-  )
-);
+fn requirement(input: &str) -> IResult<&str, Requirement> {
+  map(
+   tuple((tag("Step "), step_name, tag(" must be finished before step "), step_name, tag(" can begin."))),
+    |(_, name, _, dep, _)| Requirement { name, dep }
+  )(input)
+}
 
 #[aoc_generator(day7)]
 pub fn input_generator(input: &str) -> Vec<Requirement> {

@@ -7,4 +7,4 @@ edition = "2021"
 [dependencies]
 aoc-runner = "*"
 aoc-runner-derive = "*"
-nom = "6.*"
+nom = "*"
