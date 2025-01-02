@@ -1,5 +1,7 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 
+use crate::Grid;
+
 /*
 
 --- Day 4: Ceres Search ---
@@ -43,25 +45,8 @@ Take a look at the little Elf's word search. How many times does XMAS appear?
 
  */
 
-struct Grid(Vec<Vec<char>>);
-
-impl Grid {
-    fn get(&self, r: usize, c: usize) -> Option<char> {
-        self.0.get(r).and_then(|row| row.get(c)).copied()
-    }
-
-    fn get_offset(&self, r: usize, r_offset: isize, c: usize, c_offset: isize) -> Option<char> {
-        let r: isize = r.try_into().ok()?;
-        let r: usize = (r + r_offset).try_into().ok()?;
-        let c: isize = c.try_into().ok()?;
-        let c: usize = (c + c_offset).try_into().ok()?;
-        self.get(r, c)
-    }
-}   
-
-
 #[aoc_generator(day4)]
-fn parse_input(input: &str) -> Grid {
+fn parse_input(input: &str) -> Grid<char> {
     let input = input.trim();
     Grid(input.lines().map(|l| l.trim().chars().collect()).collect())
 }
@@ -79,7 +64,7 @@ const DIRS: [(isize, isize); 8] = [
 ];
 
 #[aoc(day4, part1)]
-fn part1(grid: &Grid) -> u32 {
+fn part1(grid: &Grid<char>) -> u32 {
     let mut count = 0;
     for (r, row) in grid.0.iter().enumerate() {
         for (c, ch) in row.iter().enumerate() {
@@ -102,7 +87,7 @@ fn part1(grid: &Grid) -> u32 {
 }
 
 #[aoc(day4, part2)]
-fn part2(grid: &Grid) -> u32 {
+fn part2(grid: &Grid<char>) -> u32 {
     let mut count = 0;
     for (r, row) in grid.0.iter().enumerate() {
         for (c, ch) in row.iter().enumerate() {

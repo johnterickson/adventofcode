@@ -2,6 +2,8 @@ use std::collections::HashSet;
 
 use aoc_runner_derive::{aoc, aoc_generator};
 
+use crate::Grid;
+
 /*
 --- Day 6: Guard Gallivant ---
 The Historians use their fancy device again, this time to whisk you all away to the North Pole prototype suit manufacturing lab... in the year 1518! It turns out that having direct access to history is very convenient for a group of historians.
@@ -118,15 +120,6 @@ impl Direction {
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
  enum Cell { Empty, Obstacle, Guard(Direction) }
-
- #[derive(Debug, Clone)]
- struct Grid<T>(Vec<Vec<T>>);
-
-impl<T: Copy> Grid<T> {
-    fn get(&self, r: usize, c: usize) -> Option<T> {
-        self.0.get(r).and_then(|row| row.get(c)).copied()
-    }
-}  
 
  struct Input(Grid<Cell>);
 
