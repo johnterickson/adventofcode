@@ -72,7 +72,8 @@ fn part1(grid: &Grid<char>) -> u32 {
                 'dir: 
                 for (dr, dc) in DIRS.iter() {
                     for i in 1..WORD.len() {
-                        if grid.get_offset(r, i as isize * dr, c, i as isize * dc) != Some(WORD[i]) {
+                        let cell = grid.get_offset(r, i as isize * dr, c, i as isize * dc);
+                        if cell.map(|(_r, _c, cell)| cell) != Some(WORD[i]) {
                             continue 'dir;
                         }
                     }
@@ -95,10 +96,10 @@ fn part2(grid: &Grid<char>) -> u32 {
                 continue;
             }
 
-            let up_left = grid.get_offset(r, -1, c, -1);
-            let up_right = grid.get_offset(r, -1, c, 1);
-            let down_left = grid.get_offset(r, 1, c, -1);
-            let down_right = grid.get_offset(r, 1, c, 1);
+            let up_left = grid.get_offset(r, -1, c, -1).map(|(_r, _c, cell)| cell);
+            let up_right = grid.get_offset(r, -1, c, 1).map(|(_r, _c, cell)| cell);
+            let down_left = grid.get_offset(r, 1, c, -1).map(|(_r, _c, cell)| cell);
+            let down_right = grid.get_offset(r, 1, c, 1).map(|(_r, _c, cell)| cell);
 
             let up_left_diag = 
                 (up_left == Some('M') && down_right == Some('S')) ||

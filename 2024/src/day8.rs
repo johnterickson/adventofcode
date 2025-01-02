@@ -1,3 +1,5 @@
+use std::{collections::{HashMap, HashSet}, fmt::{Debug, Display}, hash::Hash};
+
 use aoc_runner_derive::{aoc, aoc_generator};
 
 use crate::Grid;
@@ -6,7 +8,8 @@ use crate::Grid;
 --- Day 8: Resonant Collinearity ---
 You find yourselves on the roof of a top-secret Easter Bunny installation.
 
-While The Historians do their thing, you take a look at the familiar huge antenna. Much to your surprise, it seems to have been reconfigured to emit a signal that makes people 0.1% more likely to buy Easter Bunny brand Imitation Mediocre Chocolate as a Christmas gift! Unthinkable!
+While The Historians do their thing, you take a look at the familiar huge antenna. Much to your surprise, it seems to have been reconfigured to emit a signal that makes people 0.1% more likely to buy Easter Bunny brand Imitation Mediocre Chocolate as a Christmas gift! 
+Unthinkable!
 
 Scanning across the city, you find that there are actually many such antennas. Each antenna is tuned to a specific frequency indicated by a single lowercase letter, uppercase letter, or digit. You create a map (your puzzle input) of these antennas. For example:
 
@@ -22,7 +25,9 @@ Scanning across the city, you find that there are actually many such antennas. E
 .........A..
 ............
 ............
-The signal only applies its nefarious effect at specific antinodes based on the resonant frequencies of the antennas. In particular, an antinode occurs at any point that is perfectly in line with two antennas of the same frequency - but only when one of the antennas is twice as far away as the other. This means that for any pair of antennas with the same frequency, there are two antinodes, one on either side of them.
+The signal only applies its nefarious effect at specific antinodes based on the resonant frequencies of the antennas. 
+In particular, an antinode occurs at any point that is perfectly in line with two antennas of the same frequency - but only when one of the antennas is twice as far away as the other. 
+This means that for any pair of antennas with the same frequency, there are two antinodes, one on either side of them.
 
 So, for these two antennas with frequency a, they create the two antinodes marked with #:
 
@@ -80,9 +85,21 @@ Calculate the impact of the signal. How many unique locations within the bounds 
 
 */
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum Cell {
     Empty,
     Antenna(char),
+    Antinode
+}
+
+impl Debug for Cell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Cell::Empty => write!(f, "."),
+            Cell::Antenna(c) => write!(f, "{}", c),
+            Cell::Antinode => write!(f, "#"),
+        }
+    }
 }
 
 #[aoc_generator(day8)]
@@ -98,7 +115,55 @@ fn parse(input: &str) -> Grid<Cell> {
 
 #[aoc(day8, part1)]
 fn part1(input: &Grid<Cell>) -> u32 {
-    todo!()
+    let mut antennas = HashMap::new();
+    for (r, row) in input.0.iter().enumerate() {
+        for (c, cell) in row.iter().enumerate() {
+            if let Cell::Antenna(freq) = cell {
+                antennas.entry(*freq).or_insert_with(HashSet::new).insert((r, c));
+            }
+        }
+    }
+
+    let mut antinodes = HashSet::new();
+
+    for (_, antennas) in antennas {
+        let antennas : Vec<_> = antennas.iter().copied().collect();
+        for i in 0..antennas.len() {
+            for j in i + 1..antennas.len() {
+                    let (r1, c1) = antennas[i];
+                    let (r2, c2) = antennas[j];
+                    
+                    let dr = r2 as isize - r1 as isize;
+                    let dc = c2 as isize - c1 as isize;
+
+                    if let Some((r,c, cell)) = input.get_offset(r2, dr, c2, dc) {
+                        // if cell == Cell::Empty 
+                        {
+                            antinodes.insert((r,c));
+                        }
+                    }
+
+                    if let Some((r,c, cell)) = input.get_offset(r1, -dr, c1, -dc) {
+                        // if cell == Cell::Empty 
+                        {
+                            antinodes.insert((r,c));
+                        }
+                    }
+                }
+            }
+        }
+
+    // dbg!(&input);
+
+    // let mut result = input.clone();
+    // for an in &antinodes {
+    //     result.0[an.0][an.1] = Cell::Antinode;
+    // }
+
+    // dbg!(&result);
+
+
+    antinodes.len() as u32
 }
 
 #[aoc(day8, part2)]
