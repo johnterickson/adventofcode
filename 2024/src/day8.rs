@@ -1,4 +1,4 @@
-use std::{collections::{HashMap, HashSet}, fmt::{Debug, Display}, hash::Hash};
+use std::{collections::{HashMap, HashSet}, fmt::Debug, hash::Hash};
 
 use aoc_runner_derive::{aoc, aoc_generator};
 
@@ -89,6 +89,7 @@ Calculate the impact of the signal. How many unique locations within the bounds 
 enum Cell {
     Empty,
     Antenna(char),
+    #[allow(unused)]
     Antinode
 }
 
@@ -136,17 +137,113 @@ fn part1(input: &Grid<Cell>) -> u32 {
                     let dr = r2 as isize - r1 as isize;
                     let dc = c2 as isize - c1 as isize;
 
-                    if let Some((r,c, cell)) = input.get_offset(r2, dr, c2, dc) {
-                        // if cell == Cell::Empty 
-                        {
+                    if let Some((r,c, _cell)) = input.get_offset(r2, dr, c2, dc) {
+                        antinodes.insert((r,c));
+                    }
+
+                    if let Some((r,c, _cell)) = input.get_offset(r1, -dr, c1, -dc) {
+                        antinodes.insert((r,c));
+                    }
+                }
+            }
+        }
+
+    // dbg!(&input);
+
+    // let mut result = input.clone();
+    // for an in &antinodes {
+    //     result.0[an.0][an.1] = Cell::Antinode;
+    // }
+
+    // dbg!(&result);
+
+    antinodes.len() as u32
+}
+
+
+/*
+--- Part Two ---
+Watching over your shoulder as you work, one of The Historians asks if you took the effects of resonant harmonics into your calculations.
+
+Whoops!
+
+After updating your model, it turns out that an antinode occurs at any grid position exactly in line with at least two antennas of the same frequency, regardless of distance. This means that some of the new antinodes will occur at the position of each antenna (unless that antenna is the only one of its frequency).
+
+So, these three T-frequency antennas now create many antinodes:
+
+T....#....
+...T......
+.T....#...
+.........#
+..#.......
+..........
+...#......
+..........
+....#.....
+..........
+In fact, the three T-frequency antennas are all exactly in line with two antennas, so they are all also antinodes! This brings the total number of antinodes in the above example to 9.
+
+The original example now has 34 antinodes, including the antinodes that appear on every antenna:
+
+##....#....#
+.#.#....0...
+..#.#0....#.
+..##...0....
+....0....#..
+.#...#A....#
+...#..#.....
+#....#.#....
+..#.....A...
+....#....A..
+.#........#.
+...#......##
+Calculate the impact of the signal using this updated model. How many unique locations within the bounds of the map contain an antinode?
+*/
+
+#[aoc(day8, part2)]
+fn part2(input: &Grid<Cell>) -> u32 {
+    let mut antennas = HashMap::new();
+    for (r, row) in input.0.iter().enumerate() {
+        for (c, cell) in row.iter().enumerate() {
+            if let Cell::Antenna(freq) = cell {
+                antennas.entry(*freq).or_insert_with(HashSet::new).insert((r, c));
+            }
+        }
+    }
+
+    let mut antinodes = HashSet::new();
+
+    for (_, antennas) in antennas {
+        let antennas : Vec<_> = antennas.iter().copied().collect();
+        for i in 0..antennas.len() {
+            for j in i + 1..antennas.len() {
+                    let (r1, c1) = antennas[i];
+                    let (r2, c2) = antennas[j];
+                    
+                    let ddr = r2 as isize - r1 as isize;
+                    let ddc = c2 as isize - c1 as isize;
+
+                    {
+                        let mut dr = ddr;
+                        let mut dc = ddc;
+
+                        while let Some((r,c, _cell)) = input.get_offset(r1, dr, c1, dc) {
                             antinodes.insert((r,c));
+
+                            dr += ddr;
+                            dc += ddc;
                         }
                     }
 
-                    if let Some((r,c, cell)) = input.get_offset(r1, -dr, c1, -dc) {
-                        // if cell == Cell::Empty 
-                        {
+                    {
+                        let mut dr = -ddr;
+                        let mut dc = -ddc;
+
+                        while let Some((r,c, _cell)) = input.get_offset(r2, dr, c2, dc) {
                             antinodes.insert((r,c));
+
+                            dr -= ddr;
+                            dc -= ddc;
                         }
                     }
                 }
@@ -162,13 +259,7 @@ fn part1(input: &Grid<Cell>) -> u32 {
 
     // dbg!(&result);
 
-
     antinodes.len() as u32
-}
-
-#[aoc(day8, part2)]
-fn part2(input: &Grid<Cell>) -> u32 {
-    todo!()
 }
 
 
@@ -194,8 +285,21 @@ mod tests {
             "#)), 14);
     }
 
-    // #[test]
-    // fn part2_example() {
-    //     assert_eq!(part2(&parse("<EXAMPLE>")), "<RESULT>");
-    // }
+    #[test]
+    fn part2_example() {
+        assert_eq!(part2(&parse(r#"
+............
+........0...
+.....0......
+.......0....
+....0.......
+......A.....
+............
+............
+........A...
+.........A..
+............
+............
+            "#)), 34);
+    }
 }
